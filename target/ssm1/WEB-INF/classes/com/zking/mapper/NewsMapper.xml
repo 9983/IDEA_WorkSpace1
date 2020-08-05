@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zking.mapper.NewsMapper" >
+  <resultMap id="BaseResultMap" type="com.zking.model.News" >
+    <constructor >
+      <idArg column="news_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+
+
+  <resultMap id="Select" type="com.zking.model.News">
+    <id column="news_id" property="newsId" javaType="java.lang.Integer"></id>
+    <result column="title" property="title" javaType="java.lang.String"></result>
+    <collection property="categoryList" ofType="com.zking.model.Category">
+      <id column="category_id" property="categoryId" javaType="java.lang.Integer"></id>
+      <result column="category_name" property="categoryName" javaType="java.lang.String"></result>
+    </collection>
+  </resultMap>
+
+
+  <sql id="Base_Column_List" >
+    news_id, title
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_news
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </select>
+
+
+  <select id="SelectNewsAndCateGory" resultMap="Select">
+
+    select nc.*,c.* from t_category c
+
+    left outer join
+
+    (select n.*,nc.* from t_news_category nc
+
+    left outer join
+
+    t_news n
+
+    on n.news_id = nc.nid) nc
+
+    on c.category_id = nc.cid
+
+    where nc.nid = #{newsId}
+
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_news
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </delete>
+
+    <delete id="delNews">
+
+        delete from t_news where news_id=#{newsId}
+
+    </delete>
+
+  <insert id="insert" parameterType="com.zking.model.News" >
+    insert into t_news (news_id, title)
+    values (#{newsId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zking.model.News" >
+    insert into t_news
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="newsId != null" >
+        news_id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="newsId != null" >
+        #{newsId,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+    <insert id="add" parameterType="com.zking.model.News" >
+
+      insert into t_news (news_id, title)
+      values (#{newsId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR})
+
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.zking.model.News" >
+    update t_news
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zking.model.News" >
+    update t_news
+    set title = #{title,jdbcType=VARCHAR}
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </update>
+</mapper>
